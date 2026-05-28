@@ -15,7 +15,12 @@
     "incremental": true,
     "plugins": [
       {
-        "name": "next"
+        "name": "next",
+        "options": {
+          "tailwindcss": {
+            "config": "tailwind.config.ts"
+          }
+        }
       }
     ],
     "paths": {
