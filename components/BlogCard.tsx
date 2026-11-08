@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type Props = {
   title: string;
   description: string;
@@ -10,11 +12,12 @@ export default function BlogCard({
   slug,
 }: Props) {
   return (
-    <a
+    <Link
       href={`/blog/${slug}`}
-      className="block border border-white/10 rounded-2xl p-6 hover:border-white/30 transition"
+      aria-label={`Read article: ${title}`}
+      className="group block border border-white/10 rounded-2xl p-7 hover:border-white/40 hover:-translate-y-1 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
     >
-      <h3 className="text-2xl font-semibold mb-3">
+      <h3 className="text-2xl font-semibold mb-4 group-hover:text-gray-200 transition">
         {title}
       </h3>
 
@@ -22,9 +25,9 @@ export default function BlogCard({
         {description}
       </p>
 
-      <div className="mt-6 text-sm text-white">
+      <div className="mt-7 text-sm font-semibold text-white group-hover:text-gray-300 transition">
         Read Article →
       </div>
-    </a>
+    </Link>
   );
 }

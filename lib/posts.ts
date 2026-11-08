@@ -2,60 +2,67 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 
-const postsDirectory = path.join(
-  process.cwd(),
-  "content"
-);
+const postsDirectory = path.join(process.cwd(), "content");
 
-export function getAllPosts() {
-  const fileNames =
-    fs.readdirSync(postsDirectory);
+export type PostMetadata = {
+  title: string;
+  date: string;
+  description: string;
+};
 
-  return fileNames.map((fileName) => {
-    const slug =
-      fileName.replace(".md", "");
+export type PostSummary = PostMetadata & {
+  slug: string;
+};
 
-    const fullPath = path.join(
-      postsDirectory,
-      fileName
-    );
+export type Post = PostSummary & {
+  content: string;
+};
 
-    const fileContents =
-      fs.readFileSync(fullPath, "utf8");
+export function getAllPosts(): PostSummary[] {
+  const fileNames = fs
+    .readdirSync(postsDirectory)
+    .filter((fileName) => fileName.endsWith(".md"));
 
-    const matterResult =
-      matter(fileContents);
+  const posts: PostSummary[] = fileNames.map((fileName) => {
+    const slug = fileName.replace(/\.md$/, "");
+
+    const fullPath = path.join(postsDirectory, fileName);
+    const fileContents = fs.readFileSync(fullPath, "utf8");
+    const matterResult = matter(fileContents);
+
+    const metadata = matterResult.data as PostMetadata;
 
     return {
       slug,
-      ...(matterResult.data as {
-        title: string;
-        date: string;
-        description: string;
-      }),
+      title: metadata.title,
+      date: metadata.date,
+      description: metadata.description,
     };
   });
+
+  return posts.sort(
+    (a, b) =>
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 }
 
-export function getPost(slug: string) {
-  const fullPath = path.join(
-    postsDirectory,
-    `${slug}.md`
-  );
+export function getPost(slug: string): Post | null {
+  const fullPath = path.join(postsDirectory, `${slug}.md`);
 
-  const fileContents =
-    fs.readFileSync(fullPath, "utf8");
+  if (!fs.existsSync(fullPath)) {
+    return null;
+  }
 
-  const matterResult =
-    matter(fileContents);
+  const fileContents = fs.readFileSync(fullPath, "utf8");
+  const matterResult = matter(fileContents);
+
+  const metadata = matterResult.data as PostMetadata;
 
   return {
     slug,
     content: matterResult.content,
-    ...(matterResult.data as {
-      title: string;
-      date: string;
-      description: string;
-    }),
+    title: metadata.title,
+    date: metadata.date,
+    description: metadata.description,
   };
 }
